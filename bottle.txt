@@ -1,0 +1,81 @@
+Bottle:
+eg：“hello world”
+
+from bottle import route, run
+
+@route('/hello')
+def hello():
+    return "Hello World!"
+
+run(host='localhost', port=8080, debug=True)
+
+route()函数是装饰器，将一个URL路径和一个回掉函数关联起来，在一个default application里添加一个URL映射，浏览器请求一个URL的时候框架自动调用与之对应的函数，接着将函数的返回值发送给浏览器
+run()函数启动内置的开发服务器
+
+
+
+URL映射：
+
+#####################################################
+from bottle import route, run
+
+@route('/hello')
+def hello():
+    return "Hello World!"
+
+run(host='localhost', port=8080, debug=True)
+#####################################################
+
+route()函数是装饰器，将一个URL路径和一个回掉函数关联起来，在一个default application里添加一个URL映射，浏览器请求一个URL的时候框架自动调用与之对应的函数，接着将函数的返回值发送给浏览器
+run()函数启动内置的开发服务器
+动态URL映射包含通配符的route，其能匹配多个URL地址
+通配符：包含在<>里，之间用'/'分隔开，其会被当作参数传给回调函数
+       包含过滤器的通配符：<name:filter>或<name:filter:config>-->在传给回调函数函数之前自动转换通配符类型
+	   过滤器类型：
+	   :int 匹配一个数字自动将其转换为int类型
+	   :float 用于浮点型
+	   :path 匹配一个路径（包含'/'）
+	   :re 匹配config部分的一个正则表达式，不更改被匹配到的值
+	   
+	   
+HTTP请求方法
+route默认使用GET方法，通过匹配响应，处理其他的方法通过route()函数的method参数指定或使用装饰器：get(),post(),put(),delete(),patch()
+post()用于HTML表单提交
+HEAD请求被响应GET请求的route来处理（类似，获取HTTP原数据而不用下载整个页面），响应ANY请求的route处理所有请求，但仅限于没有其它route来匹配原先的请求的情况
+
+##########################################################################
+from bottle import get, post, request # or route
+
+@get('/login') # or @route('/login')
+def login_form():#返回登录页面
+    return '''
+        <form action="/login" method="post">
+            Username: <input name="username" type="text" />
+            Password: <input name="password" type="password" />
+            <input value="Login" type="submit" />
+        </form>
+    '''
+
+@post('/login') # or @route('/login', method='POST')
+def login_sybmit(): #检查用户有效性并返回登陆结果
+    username = request.forms.get('username')
+    password = request.forms.get('password')
+    if check_login(username, password):
+        return "<p>Your login information was correct.</p>"
+    else:
+        return "<p>Login failed.</p>"
+###########################################################################
+
+
+静态文件映射
+需要给静态文件提供一个route，一个回调函数用于查找和控制静态文件的访问
+
+############################################################################
+@route('/static/<filepath:path>')
+def server_static(filepath):
+    return static_file(filepath, root='/path/to/your/static/files')
+############################################################################
+用path过滤器响应子目录下的文件请求
+
+
+
